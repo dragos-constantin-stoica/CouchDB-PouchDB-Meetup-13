@@ -22,8 +22,8 @@
 
         <script type="text/javascript">
             function handleBack(){
-                if (!$$("list").isVisible()){
-                    $$("list").show();
+                if (!$$("accordion").isVisible()){
+                    $$("accordion").show();
                     $$("mainbar").showBatch("main");
                 }
             }
@@ -31,47 +31,72 @@
                 document.addEventListener("backbutton", handleBack, false);
             }, false);
             app.initialize();
-        </script>
-
-        <script type="text/javascript">
+    </script>
+    <script type="text/javascript">
         webix.ready(function(){
             var toolbar = { 
                 view:"toolbar",
                 id:"mainbar",
                 visibleBatch:"main",
                 elements:[
-                    { view: "template", template: "µKanaban", type: "clean", batch: "main", height:32},
+                    { view: "template", template: "µKanaban", type: "clean", batch: "main", height:42},
                     { view:"button", value:"Back", width:150, batch:"details", click: handleBack}
                 ]
             };
             
             
-            
-            var list = { 
-                view:"unitlist", id:"list", 
-                uniteBy:function(obj){
-                    return obj.lastname.substr(0,1);
-                },
-                template:"html->item_list",
-                url:"contacts.json?1",
-                on:{
-                    onItemClick:function(id){
-                        $$("mainbar").showBatch("details");
-                        $$('details').show();
-                        $$('details').setValues(this.getItem(id));
-                    }
-                }
-            };
-            
             var template = { template:"html->item_details", scroll:true, id:"details" };
             
             var accordion = {
                 view:"accordion",
-                multi:true,
+                id: "accordion",
+                multi:"mixed",
                 rows:[ //or rows 
-                    { header:"TO DO", body:"content 1" }, 
-                    { header:"WIP", body:"content 2" },
-                    { header:"DONE", body:"content 3" },
+                    { header:"TO DO", 
+                        body:{
+                            view:"list",
+                            id: "todo",
+                            template:"<b>#id#</b>. #description#",
+                            data:{id:1, description:"my 1st task", tag:"todo"},
+                            on:{
+                                onItemClick:function(id){
+                                    $$("mainbar").showBatch("details");
+                                    $$('details').show();
+                                    $$('details').setValues(this.getItem(id));
+                                }
+                            }
+                        } 
+                    }, 
+                    { header:"WIP",
+                        body:{
+                            view:"list",
+                            id: "wip",
+                            template:"<b>#id#</b>. #description#",
+                            data:{id:1, description:"my 2nd task", tag:"wip"},
+                            on:{
+                                onItemClick:function(id){
+                                    $$("mainbar").showBatch("details");
+                                    $$('details').show();
+                                    $$('details').setValues(this.getItem(id));
+                                }
+                            }
+                        } 
+                    },
+                    { header:"DONE",
+                        body:{
+                            view:"list",
+                            id: "done",
+                            template:"<b>#id#</b>. #description#",
+                            data:{id:1, description:"my 23nd task", tag:"done"},
+                            on:{
+                                onItemClick:function(id){
+                                    $$("mainbar").showBatch("details");
+                                    $$('details').show();
+                                    $$('details').setValues(this.getItem(id));
+                                }
+                            }
+                        } 
+                    },
                     {}
                 ]
             };
@@ -81,24 +106,15 @@
             webix.ui({
                 rows:[
                     toolbar,
-                    { cells:[ accordion, template], id:"multiview" }
+                    { cells:[ accordion, template], id:"multiview", fitBiggest:true }
                 ]
             });
         });
         </script>
 
-
-    <div id="item_list" style="display:none">
-        #firstname# #lastname# <span style='float:right; color:#aaa'>#zip#</span>
-    </div>
-
     <div id="item_details" style="display:none">
-        <h2>#firstname# #lastname#</h2>
-        <div class='infoline'><strong>Email:</strong> #email#</div>
-        <div class='infoline'><h4>Phone</h4> #phone#</div>
-        <div class='infoline'><h4>Address</h4> #city# #zip#</div>
-        <div class='infoline'><h4>Works at</h4> #work#</div>
-        <p style='max-width:320px'>#details#</p>
+        <h2>#tag#</h2>
+        <p style="max-width:320px">#id#. #description#</p>
     </div>
 
 
