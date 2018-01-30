@@ -14,6 +14,7 @@
 
     <link rel="stylesheet" type="text/css" href="webix/skins/touch.css">
     <script type="text/javascript" src="webix/webix.js"></script>
+    <script type="text/javascript" src="js/pouchdb-6.4.2.min.js"></script>
     <title>uKanban</title>
     
     
@@ -21,6 +22,7 @@
 <body>
 
         <script type="text/javascript">
+            var pdb;
             /*
             function handleBack(){
                 if (!$$("accordion").isVisible()){
@@ -30,31 +32,33 @@
             }
             */
             document.addEventListener("deviceready", function(){
+                pdb = new PouchDB("ukanban");
+                //Populate with data
                 //document.addEventListener("backbutton", handleBack, false);
             }, false);
-            app.initialize();
-    </script>
-    <script type="text/javascript">
-        webix.ready(function(){
+
+            webix.ready(function(){
                     
             var toolbar = { 
                 view:"toolbar",
                 id:"mainbar",
                 visibleBatch:"main",
                 elements:[
-                    { view:"label", label:"µKanaban", width: 150,  batch: "main"},
-                    { view:"button", type:"icon", icon:"plus", label:"Add", batch:"main", click:function(){
-                        $$("mainbar").showBatch("details");
-                        $$('form').show();   
-                        $$('form').clear();
-                        $$('form').setValues({tag:"todo"});
-                    }},
                     { view:"button", value:"Back", width:150, batch:"details", click: function(){
                         if (!$$("accordion").isVisible()){
                             $$("accordion").show();
                             $$("mainbar").showBatch("main");
                         }
+                    }},
+                    { view:"label", label:"µKanaban", width: 150,  batch: "main"},
+                    {batch:"main"},
+                    { view:"button", type:"icon", icon:"plus", label:"Add", batch:"main", click:function(){
+                        $$("mainbar").showBatch("details");
+                        $$('form').show();   
+                        $$('form').clear();
+                        $$('form').setValues({tag:"todo"});
                     }}
+                    
                 ]
             };
             
