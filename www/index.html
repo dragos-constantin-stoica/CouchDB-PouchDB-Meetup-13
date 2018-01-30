@@ -14,44 +14,69 @@
 
     <link rel="stylesheet" type="text/css" href="webix/skins/touch.css">
     <script type="text/javascript" src="webix/webix.js"></script>
-    <title>Kanban</title>
+    <title>uKanban</title>
     
     
 </head>
 <body>
 
         <script type="text/javascript">
+            /*
             function handleBack(){
                 if (!$$("accordion").isVisible()){
                     $$("accordion").show();
                     $$("mainbar").showBatch("main");
                 }
             }
+            */
             document.addEventListener("deviceready", function(){
-                document.addEventListener("backbutton", handleBack, false);
+                //document.addEventListener("backbutton", handleBack, false);
             }, false);
             app.initialize();
     </script>
     <script type="text/javascript">
         webix.ready(function(){
+                    
             var toolbar = { 
                 view:"toolbar",
                 id:"mainbar",
                 visibleBatch:"main",
                 elements:[
-                    { view: "template", template: "µKanaban", type: "clean", batch: "main", height:42},
-                    { view:"button", value:"Back", width:150, batch:"details", click: handleBack}
+                    { view:"label", label:"µKanaban", width: 150,  batch: "main"},
+                    { view:"button", type:"icon", icon:"plus", label:"Add", batch:"main", click:function(){
+                        $$("mainbar").showBatch("details");
+                        $$('form').show();   
+                        $$('form').clear();
+                        $$('form').setValues({tag:"todo"});
+                    }},
+                    { view:"button", value:"Back", width:150, batch:"details", click: function(){
+                        if (!$$("accordion").isVisible()){
+                            $$("accordion").show();
+                            $$("mainbar").showBatch("main");
+                        }
+                    }}
                 ]
             };
             
-            
-            var template = { template:"html->item_details", scroll:true, id:"details" };
-            
+            var form = {
+                view:"form", 
+                id:"form",
+                elements:[
+                    { view:"text", label:"Task #", name:"id"},
+                    { view: "textarea", label: "Description", 
+                        name: "description", labelPosition:"top",
+                        height: 200
+                    },
+                    { view:"select", name:"tag", options:["todo", "wip", "done"]},
+                    { view:"button", value:"Save" , type:"form"}
+                ]
+            };
+                        
             var accordion = {
                 view:"accordion",
                 id: "accordion",
                 multi:"mixed",
-                rows:[ //or rows 
+                rows:[ 
                     { header:"TO DO", 
                         body:{
                             view:"list",
@@ -61,8 +86,8 @@
                             on:{
                                 onItemClick:function(id){
                                     $$("mainbar").showBatch("details");
-                                    $$('details').show();
-                                    $$('details').setValues(this.getItem(id));
+                                    $$('form').show();
+                                    $$('form').setValues(this.getItem(id));
                                 }
                             }
                         } 
@@ -76,8 +101,8 @@
                             on:{
                                 onItemClick:function(id){
                                     $$("mainbar").showBatch("details");
-                                    $$('details').show();
-                                    $$('details').setValues(this.getItem(id));
+                                    $$('form').show();
+                                    $$('form').setValues(this.getItem(id));
                                 }
                             }
                         } 
@@ -91,8 +116,8 @@
                             on:{
                                 onItemClick:function(id){
                                     $$("mainbar").showBatch("details");
-                                    $$('details').show();
-                                    $$('details').setValues(this.getItem(id));
+                                    $$('form').show();
+                                    $$('form').setValues(this.getItem(id));
                                 }
                             }
                         } 
@@ -106,17 +131,11 @@
             webix.ui({
                 rows:[
                     toolbar,
-                    { cells:[ accordion, template], id:"multiview", fitBiggest:true }
+                    { cells:[ accordion, form], id:"multiview", fitBiggest:true }
                 ]
             });
         });
         </script>
-
-    <div id="item_details" style="display:none">
-        <h2>#tag#</h2>
-        <p style="max-width:320px">#id#. #description#</p>
-    </div>
-
 
 </body>
 </html>
