@@ -33,11 +33,11 @@
                         console.log("deviceready");
                         //Put some documents into the database
                         pdb.bulkDocs([
-                          {description : 'Backlog task', id: '5', tag: 'todo'},
-                          {description : 'My 1st task', id: '1', tag: 'todo'},
-                          {description : 'My 2nd task', id: '2', tag: 'wip'},
-                          {description : 'My 3rd task', id: '3', tag: 'done'},
-                          {description : 'Finalized task', id: '6', tag: 'done'}
+                          {description : 'Backlog task', tid: '5', tag: 'todo'},
+                          {description : 'My 1st task', tid: '1', tag: 'todo'},
+                          {description : 'My 2nd task', tid: '2', tag: 'wip'},
+                          {description : 'My 3rd task', tid: '3', tag: 'done'},
+                          {description : 'Finalized task', tid: '6', tag: 'done'}
                         ]).then(function (result) {
                           // handle result                          
                         }).catch(function (err) {
@@ -92,10 +92,14 @@
                                     { view:"label", label:"µKanaban", width: 150,  batch: "main"},
                                     {batch:"main"},
                                     { view:"button", type:"icon", icon:"plus", label:"Add", batch:"main", click:function(){
-                                        $$("mainbar").showBatch("details");
-                                        $$('form').show();   
+                                        $$("todo").unselectAll();
+                                        $$("form").unbind();
+                                        $$("form").bind($$("todo"));
+                                        
                                         $$('form').clear();
-                                        $$('form').setValues({tag:"todo"});
+                                        $$("form").setValues({tag:"done"});
+                                        $$("form").show();
+                                        $$("mainbar").showBatch("details");
                                     }}
                                     
                                 ]
@@ -105,13 +109,24 @@
                                 view:"form", 
                                 id:"form",
                                 elements:[
-                                    { view:"text", label:"Task #", name:"id"},
+                                    { view:"text", label:"Task #", name:"tid"},
                                     { view: "textarea", label: "Description", 
                                         name: "description", labelPosition:"top",
                                         height: 200
                                     },
-                                    { view:"select", name:"tag", options:["todo", "wip", "done"]},
-                                    { view:"button", value:"Save" , type:"form"}
+                                    { view:"select", id:"tag", name:"tag", options:["todo","wip","done"]},
+                                    { view:"button", value:"Save" , type:"form", 
+                                        click: function(){
+                                            $$("form").save();
+                                            //Refresh all lists because the tasks may have changed the column
+                                            $$("todo").clearAll();
+                                            $$("todo").load("proxyPouchDB->todo");
+                                            $$("wip").clearAll();
+                                            $$("wip").load("proxyPouchDB->wip");
+                                            $$("done").clearAll();
+                                            $$("done").load("proxyPouchDB->done");
+                                        }
+                                    }
                                 ]
                             };
                                         
@@ -124,7 +139,9 @@
                                         body:{
                                             view:"list",
                                             id: "todo",
-                                            template:"<b>#id#</b>. #description#",
+                                            autoheight:true,
+                                            select:true,
+                                            template:"<b>#tid#</b>. #description#",
                                             url:"proxyPouchDB->todo",
                                             save: "proxyPouchDB->todo",
                                             on:{
@@ -132,6 +149,8 @@
                                                     $$("mainbar").showBatch("details");
                                                     $$('form').show();
                                                     $$('form').setValues(this.getItem(id));
+                                                    $$("form").unbind();
+                                                    $$("form").bind($$("todo"));
                                                 }
                                             }
                                         } 
@@ -140,7 +159,9 @@
                                         body:{
                                             view:"list",
                                             id: "wip",
-                                            template:"<b>#id#</b>. #description#",
+                                            autoheight:true,
+                                            select:true,
+                                            template:"<b>#tid#</b>. #description#",
                                             url:"proxyPouchDB->wip",
                                             save: "proxyPouchDB->wip",
                                             on:{
@@ -148,6 +169,8 @@
                                                     $$("mainbar").showBatch("details");
                                                     $$('form').show();
                                                     $$('form').setValues(this.getItem(id));
+                                                    $$("form").unbind();
+                                                    $$("form").bind($$("wip"));
                                                 }
                                             }
                                         } 
@@ -156,7 +179,9 @@
                                         body:{
                                             view:"list",
                                             id: "done",
-                                            template:"<b>#id#</b>. #description#",
+                                            autoheight:true,
+                                            select:true,
+                                            template:"<b>#tid#</b>. #description#",
                                             url:"proxyPouchDB->done",
                                             save: "proxyPouchDB->done",
                                             on:{
@@ -164,6 +189,8 @@
                                                     $$("mainbar").showBatch("details");
                                                     $$('form').show();
                                                     $$('form').setValues(this.getItem(id));
+                                                    $$("form").unbind();
+                                                    $$("form").bind($$("done"));
                                                 }
                                             }
                                         } 
@@ -177,7 +204,7 @@
                             webix.ui({
                                 rows:[
                                     toolbar,
-                                    { cells:[ accordion, form], id:"multiview", fitBiggest:true }
+                                    { cells:[ accordion, form], id:"multiview", view: "multiview", fitBiggest:true }
                                 ]
                             });
                         });                

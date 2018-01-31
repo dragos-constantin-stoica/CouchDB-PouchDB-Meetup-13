@@ -5,7 +5,6 @@ webix.proxy.proxyPouchDB = {
 
     load:function(view, callback){
         //Build JSON Array from database
-        console.log(this.source);
         
         pdb.query('tag', {
             key: this.source,
@@ -14,6 +13,7 @@ webix.proxy.proxyPouchDB = {
           // handle result
           var todo_data = [];
           todo_data = result.rows.reduce(function(acc, crt){
+              crt.doc.id = crt.doc._id;
               acc.push(crt.doc);
               return acc;
           }, []);
@@ -75,3 +75,38 @@ webix.proxy.proxyPouchDB = {
 
 
 };
+
+
+//Use your own database - this is a test database
+var remoteCouch = "https://dragosstoica.cloudant.com/ukanban";//"http://dragosstoica.iriscouch.com/todo";
+
+//Helper function for database sync
+//Synchronization between local PouchDB and remote CouchDB
+function syncDB(){
+    var sync = pdb.sync(remoteCouch, {
+	  retry: true
+	}).on('change', function (info) {
+	  // handle change
+		console.log(info);
+	}).on('paused', function () {
+	  // replication paused (e.g. user went offline)
+		console.log("paused");
+	}).on('active', function () {
+	  // replicate resumed (e.g. user went back online)
+		console.log("active");
+	}).on('denied', function (info) {
+	  // a document failed to replicate, e.g. due to permissions
+		console.log(info);
+	}).on('complete', function (info) {
+	  // handle complete
+		console.log(info);
+	}).on('error', function (err) {
+	  // handle error
+		console.log(err);
+		//cancel replication (test if it works?!?)
+		sync.cancel();
+	});	
+	
+}
+
+
