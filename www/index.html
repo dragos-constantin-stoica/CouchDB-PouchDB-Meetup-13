@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta http-equiv="Content-Security-Policy" content="default-src * data: gap: content: https://ssl.gstatic.com; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
 
-    <title>Kanban</title>
-
     <script src="components/loader.js"></script>
     <link rel="stylesheet" href="components/loader.css">
     <link rel="stylesheet" href="css/style.css">
@@ -15,131 +13,180 @@
     <link rel="stylesheet" type="text/css" href="webix/skins/touch.css">
     <script type="text/javascript" src="webix/webix.js"></script>
     <script type="text/javascript" src="js/pouchdb-6.4.2.min.js"></script>
-    <title>uKanban</title>
+    <script type="text/javascript" src="js/webix-pouchdb-proxy.js"></script>
+    <title>µKanban</title>
     
+    <script type="text/javascript">
+            var pdb;
+            
+            //Get the data for each list
+            var todo_data = [];
+            
+            
+            var setupPouchDB = function(){
+                pdb = new PouchDB("ukanban");
+                    
+                    pdb.destroy().then(function (response) {
+                    
+                    // success this is for debug purposes
+                        pdb = new PouchDB("ukanban");
+                        console.log("deviceready");
+                        //Put some documents into the database
+                        pdb.bulkDocs([
+                          {description : 'Backlog task', id: '5', tag: 'todo'},
+                          {description : 'My 1st task', id: '1', tag: 'todo'},
+                          {description : 'My 2nd task', id: '2', tag: 'wip'},
+                          {description : 'My 3rd task', id: '3', tag: 'done'},
+                          {description : 'Finalized task', id: '6', tag: 'done'}
+                        ]).then(function (result) {
+                          // handle result                          
+                        }).catch(function (err) {
+                          console.log(err);
+                        });
+                        
+                        // create a design doc for tags
+                        var ddoc = {
+                          _id: '_design/tag',
+                          views: {
+                            tag: {
+                              map: function mapFun(doc) {
+                                if (doc.tag) {
+                                  emit(doc.tag);
+                                }
+                              }.toString()
+                            }
+                          }
+                        }
+                        
+                        //create the ddoc in the database and get the data
+                        //save the design doc
+                        pdb.put(ddoc).catch(function (err) {
+                          if (err.name !== 'conflict') {
+                            throw err;
+                          }
+                          // ignore if doc already exists
+                        }).then(function () {
+                          WebixReady();
+                        });
+                        
+                    }).catch(function(err){
+                        console.log(err);
+                    });
+                    
+            };
+            
+            var WebixReady = function(){
+                 webix.ready(function(){                
+                                
+                            var toolbar = { 
+                                view:"toolbar",
+                                id:"mainbar",
+                                visibleBatch:"main",
+                                elements:[
+                                    { view:"button", value:"Back", width:150, batch:"details", click: function(){
+                                        if (!$$("accordion").isVisible()){
+                                            $$("accordion").show();
+                                            $$("mainbar").showBatch("main");
+                                        }
+                                    }},
+                                    { view:"label", label:"µKanaban", width: 150,  batch: "main"},
+                                    {batch:"main"},
+                                    { view:"button", type:"icon", icon:"plus", label:"Add", batch:"main", click:function(){
+                                        $$("mainbar").showBatch("details");
+                                        $$('form').show();   
+                                        $$('form').clear();
+                                        $$('form').setValues({tag:"todo"});
+                                    }}
+                                    
+                                ]
+                            };
+                            
+                            var form = {
+                                view:"form", 
+                                id:"form",
+                                elements:[
+                                    { view:"text", label:"Task #", name:"id"},
+                                    { view: "textarea", label: "Description", 
+                                        name: "description", labelPosition:"top",
+                                        height: 200
+                                    },
+                                    { view:"select", name:"tag", options:["todo", "wip", "done"]},
+                                    { view:"button", value:"Save" , type:"form"}
+                                ]
+                            };
+                                        
+                            var accordion = {
+                                view:"accordion",
+                                id: "accordion",
+                                multi:"mixed",
+                                rows:[ 
+                                    { header:"TO DO", 
+                                        body:{
+                                            view:"list",
+                                            id: "todo",
+                                            template:"<b>#id#</b>. #description#",
+                                            url:"proxyPouchDB->todo",
+                                            save: "proxyPouchDB->todo",
+                                            on:{
+                                                onItemClick:function(id){
+                                                    $$("mainbar").showBatch("details");
+                                                    $$('form').show();
+                                                    $$('form').setValues(this.getItem(id));
+                                                }
+                                            }
+                                        } 
+                                    }, 
+                                    { header:"WIP",
+                                        body:{
+                                            view:"list",
+                                            id: "wip",
+                                            template:"<b>#id#</b>. #description#",
+                                            url:"proxyPouchDB->wip",
+                                            save: "proxyPouchDB->wip",
+                                            on:{
+                                                onItemClick:function(id){
+                                                    $$("mainbar").showBatch("details");
+                                                    $$('form').show();
+                                                    $$('form').setValues(this.getItem(id));
+                                                }
+                                            }
+                                        } 
+                                    },
+                                    { header:"DONE",
+                                        body:{
+                                            view:"list",
+                                            id: "done",
+                                            template:"<b>#id#</b>. #description#",
+                                            url:"proxyPouchDB->done",
+                                            save: "proxyPouchDB->done",
+                                            on:{
+                                                onItemClick:function(id){
+                                                    $$("mainbar").showBatch("details");
+                                                    $$('form').show();
+                                                    $$('form').setValues(this.getItem(id));
+                                                }
+                                            }
+                                        } 
+                                    },
+                                    {}
+                                ]
+                            };
+                            
+                            webix.ui.fullScreen();
+                            
+                            webix.ui({
+                                rows:[
+                                    toolbar,
+                                    { cells:[ accordion, form], id:"multiview", fitBiggest:true }
+                                ]
+                            });
+                        });                
+            };
+            
+            document.addEventListener("deviceready", setupPouchDB, false);
+    </script>
     
 </head>
 <body>
-
-        <script type="text/javascript">
-            var pdb;
-            /*
-            function handleBack(){
-                if (!$$("accordion").isVisible()){
-                    $$("accordion").show();
-                    $$("mainbar").showBatch("main");
-                }
-            }
-            */
-            document.addEventListener("deviceready", function(){
-                pdb = new PouchDB("ukanban");
-                //Populate with data
-                //document.addEventListener("backbutton", handleBack, false);
-            }, false);
-
-            webix.ready(function(){
-                    
-            var toolbar = { 
-                view:"toolbar",
-                id:"mainbar",
-                visibleBatch:"main",
-                elements:[
-                    { view:"button", value:"Back", width:150, batch:"details", click: function(){
-                        if (!$$("accordion").isVisible()){
-                            $$("accordion").show();
-                            $$("mainbar").showBatch("main");
-                        }
-                    }},
-                    { view:"label", label:"µKanaban", width: 150,  batch: "main"},
-                    {batch:"main"},
-                    { view:"button", type:"icon", icon:"plus", label:"Add", batch:"main", click:function(){
-                        $$("mainbar").showBatch("details");
-                        $$('form').show();   
-                        $$('form').clear();
-                        $$('form').setValues({tag:"todo"});
-                    }}
-                    
-                ]
-            };
-            
-            var form = {
-                view:"form", 
-                id:"form",
-                elements:[
-                    { view:"text", label:"Task #", name:"id"},
-                    { view: "textarea", label: "Description", 
-                        name: "description", labelPosition:"top",
-                        height: 200
-                    },
-                    { view:"select", name:"tag", options:["todo", "wip", "done"]},
-                    { view:"button", value:"Save" , type:"form"}
-                ]
-            };
-                        
-            var accordion = {
-                view:"accordion",
-                id: "accordion",
-                multi:"mixed",
-                rows:[ 
-                    { header:"TO DO", 
-                        body:{
-                            view:"list",
-                            id: "todo",
-                            template:"<b>#id#</b>. #description#",
-                            data:{id:1, description:"my 1st task", tag:"todo"},
-                            on:{
-                                onItemClick:function(id){
-                                    $$("mainbar").showBatch("details");
-                                    $$('form').show();
-                                    $$('form').setValues(this.getItem(id));
-                                }
-                            }
-                        } 
-                    }, 
-                    { header:"WIP",
-                        body:{
-                            view:"list",
-                            id: "wip",
-                            template:"<b>#id#</b>. #description#",
-                            data:{id:1, description:"my 2nd task", tag:"wip"},
-                            on:{
-                                onItemClick:function(id){
-                                    $$("mainbar").showBatch("details");
-                                    $$('form').show();
-                                    $$('form').setValues(this.getItem(id));
-                                }
-                            }
-                        } 
-                    },
-                    { header:"DONE",
-                        body:{
-                            view:"list",
-                            id: "done",
-                            template:"<b>#id#</b>. #description#",
-                            data:{id:1, description:"my 23nd task", tag:"done"},
-                            on:{
-                                onItemClick:function(id){
-                                    $$("mainbar").showBatch("details");
-                                    $$('form').show();
-                                    $$('form').setValues(this.getItem(id));
-                                }
-                            }
-                        } 
-                    },
-                    {}
-                ]
-            };
-            
-            webix.ui.fullScreen();
-            
-            webix.ui({
-                rows:[
-                    toolbar,
-                    { cells:[ accordion, form], id:"multiview", fitBiggest:true }
-                ]
-            });
-        });
-        </script>
-
 </body>
 </html>
