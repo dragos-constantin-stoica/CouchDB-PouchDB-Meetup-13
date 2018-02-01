@@ -21,41 +21,44 @@ webix.proxy.proxyPouchDB = {
         }).catch(function (err) {
           console.log(err);
         });
-        
-        /*
-    	pdb.allDocs({
-		  include_docs: true
-		}).then(function (result) {
-		  // handle result
-			console.log(result);
-			var todo_data = [];
-			result.rows.forEach(function(element, index, array){
-				todo_data.push(element.doc);
-			});
-			view.parse(todo_data, 'json');
-		}).catch(function (err) {
-			//something really bad happened 
-		  console.log(err);
-		});
-        */
     },
-    
-    
+        
     save:function(view, update, dp, callback){
-
+        function postProcessing(response){
+            console.log(response);
+            console.log(view.getItem(update.data["id"]));
+        }
+        
         //your saving pattern
         if(update.operation == "update"){
 			//already having an _id
+            /*
 			pdb.put(update.data).then(function (response) {
 			  // handle response
+             
 				var item = view.getItem(update.data["id"]);
 				item._rev = response.rev;
 				view.updateItem(update.data["id"],item);
 				view.refresh();	
 				webix.dp(view).reset();
+                
+                confirm('Task updated!');
+                
+                webix.message("Task updated");
 			}).catch(function (err) {
 			  console.log(err);
 			});
+            */
+            pdb.put(update.data, 
+            function(err, response) {
+              if (err) { return console.log(err); }
+              // handle response
+              webix.message("Task updated");
+              console.log("pufi!");
+              postProcessing(response);
+            });
+        
+            
 		}
 
 		if(update.operation == "insert"){
@@ -67,13 +70,12 @@ webix.proxy.proxyPouchDB = {
 				view.updateItem(update.data["id"],item);
 				view.refresh();
 				webix.dp(view).reset();
+                webix.message("Task created!");
 			}).catch(function (err) {
 			  console.log(err);
 			});
 		}
 	}
-
-
 };
 
 
@@ -109,4 +111,8 @@ function syncDB(){
 	
 }
 
+
+function alertDismissed(){
+    return;
+}
 

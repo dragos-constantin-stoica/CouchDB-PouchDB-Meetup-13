@@ -24,6 +24,7 @@
             
             
             var setupPouchDB = function(){
+                                
                 pdb = new PouchDB("ukanban");
                     
                     pdb.destroy().then(function (response) {
@@ -204,7 +205,9 @@
                             webix.ui({
                                 rows:[
                                     toolbar,
-                                    { cells:[ accordion, form], id:"multiview", view: "multiview", fitBiggest:true }
+                                    {cells:[ accordion, form], id:"multiview", view: "multiview", fitBiggest:true, 
+                                    autoheight: true }
+                                    
                                 ]
                             });
                         });                
