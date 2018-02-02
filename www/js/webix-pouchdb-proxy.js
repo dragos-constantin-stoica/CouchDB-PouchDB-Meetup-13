@@ -28,9 +28,7 @@ webix.proxy.proxyPouchDB = {
     },
         
     save:function(view, update, dp, callback){        
-        //this.update = update;
-        var self = view;
-        
+        //bind view to context to access it from callback
         var processResponse = (function(response){
             if (update.operation == "update"){
                 var item = view.getItem(update.data["id"]);
@@ -48,15 +46,7 @@ webix.proxy.proxyPouchDB = {
 				view.updateItem(update.data["id"],item);
 				view.refresh();
 				webix.dp(view).reset();
-                //webix.message("Task created!");
-                
-                navigator.notification.alert(
-                    'Task created!',  // message
-                    function(){return;},         // callback
-                    'PouchDB message',            // title
-                    'OK'                  // buttonName
-                );
-                
+                webix.message("Task created!");                
             }
         })(view);
         
@@ -109,12 +99,14 @@ function syncDB(){
 	}).on('paused', function () {
 	  // replication paused (e.g. user went offline)
 		console.log("paused");
+        /*
         navigator.notification.alert(
             'Syncronisation paused!',  // message
             function(){return;},         // callback
             'PouchDB message',            // title
             'OK'                  // buttonName
         );
+        */
 	}).on('active', function () {
 	  // replicate resumed (e.g. user went back online)
 		console.log("active");
