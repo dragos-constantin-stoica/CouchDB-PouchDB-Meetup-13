@@ -16,13 +16,7 @@
     <script type="text/javascript" src="js/webix-pouchdb-proxy.js"></script>
     <title>µKanban</title>
     
-    <script type="text/javascript">
-            var pdb;
-            
-            //Get the data for each list
-            var todo_data = [];
-            
-            
+    <script type="text/javascript">            
             var setupPouchDB = function(){
                                 
                 pdb = new PouchDB("ukanban");
@@ -90,8 +84,9 @@
                                             $$("mainbar").showBatch("main");
                                         }
                                     }},
-                                    { view:"label", label:"µKanaban", width: 150,  batch: "main"},
-                                    {batch:"main"},
+                                    { view:"label", label:"µKanaban", width: 100,  batch: "main"},
+                                    {view:"button", type:"icon", icon:"cloud", label:"Sync", batch:"main", click:syncDB},
+                                    //{batch:"main"},
                                     { view:"button", type:"icon", icon:"plus", label:"Add", batch:"main", click:function(){
                                         $$("todo").unselectAll();
                                         $$("form").unbind();

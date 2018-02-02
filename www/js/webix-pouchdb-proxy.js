@@ -1,5 +1,8 @@
-//Webix Proxy for PouchDB
 //pdb is the global variable pointing to PouchDb database
+var pdb;
+
+
+//Webix Proxy for PouchDB
 webix.proxy.proxyPouchDB = {
     $proxy:true,
 
@@ -14,6 +17,7 @@ webix.proxy.proxyPouchDB = {
           var todo_data = [];
           todo_data = result.rows.reduce(function(acc, crt){
               crt.doc.id = crt.doc._id;
+              crt.doc.rev = crt.doc._rev;
               acc.push(crt.doc);
               return acc;
           }, []);
@@ -23,57 +27,60 @@ webix.proxy.proxyPouchDB = {
         });
     },
         
-    save:function(view, update, dp, callback){
-        function postProcessing(response){
-            console.log(response);
-            console.log(view.getItem(update.data["id"]));
-        }
+    save:function(view, update, dp, callback){        
+        //this.update = update;
+        var self = view;
         
-        //your saving pattern
-        if(update.operation == "update"){
-			//already having an _id
-            /*
-			pdb.put(update.data).then(function (response) {
-			  // handle response
-             
-				var item = view.getItem(update.data["id"]);
-				item._rev = response.rev;
+        var processResponse = (function(response){
+            if (update.operation == "update"){
+                var item = view.getItem(update.data["id"]);
+    			item._rev = response.rev;
 				view.updateItem(update.data["id"],item);
 				view.refresh();	
-				webix.dp(view).reset();
-                
-                confirm('Task updated!');
-                
+				webix.dp(view).reset();  
                 webix.message("Task updated");
-			}).catch(function (err) {
-			  console.log(err);
-			});
-            */
-            pdb.put(update.data, 
-            function(err, response) {
-              if (err) { return console.log(err); }
-              // handle response
-              webix.message("Task updated");
-              console.log("pufi!");
-              postProcessing(response);
-            });
-        
+            }
             
-		}
-
-		if(update.operation == "insert"){
-			pdb.post(update.data).then(function (response) {
-			  // handle response
-				var item = view.getItem(update.data["id"]);
+            if(update.operation == "insert"){
+    			var item = view.getItem(update.data["id"]);
 				item._id = response.id;
-				item._rev = response.rev;
+				item.rev = response.rev;
 				view.updateItem(update.data["id"],item);
 				view.refresh();
 				webix.dp(view).reset();
-                webix.message("Task created!");
-			}).catch(function (err) {
-			  console.log(err);
-			});
+                //webix.message("Task created!");
+                
+                navigator.notification.alert(
+                    'Task created!',  // message
+                    function(){return;},         // callback
+                    'PouchDB message',            // title
+                    'OK'                  // buttonName
+                );
+                
+            }
+        })(view);
+        
+        //your saving pattern
+        if(update.operation == "update"){
+			//already having an _id, put the _rev
+            update.data._rev = update.data.rev;
+			pdb.put(update.data,
+                function (err, response) {
+                    if(err) {return console.log(err);}
+			        // handle response
+                    processResponse(response);                    
+			    }
+            );
+		}
+
+		if(update.operation == "insert"){
+			pdb.post(update.data, 
+                function (err, response) {
+                    if(err) {return console.log(err);}
+    		        // handle response
+                    processResponse(response);                    
+			    }
+            );
 		}
 	}
 };
@@ -85,14 +92,29 @@ var remoteCouch = "https://dragosstoica.cloudant.com/ukanban";//"http://dragosst
 //Helper function for database sync
 //Synchronization between local PouchDB and remote CouchDB
 function syncDB(){
+    
+    navigator.notification.alert(
+        'Syncronisation started!',  // message
+        function(){return;},         // callback
+        'PouchDB message',            // title
+        'OK'                  // buttonName
+    );  
+    
+    
     var sync = pdb.sync(remoteCouch, {
-	  retry: true
+	  retry: false
 	}).on('change', function (info) {
 	  // handle change
 		console.log(info);
 	}).on('paused', function () {
 	  // replication paused (e.g. user went offline)
 		console.log("paused");
+        navigator.notification.alert(
+            'Syncronisation paused!',  // message
+            function(){return;},         // callback
+            'PouchDB message',            // title
+            'OK'                  // buttonName
+        );
 	}).on('active', function () {
 	  // replicate resumed (e.g. user went back online)
 		console.log("active");
@@ -102,17 +124,24 @@ function syncDB(){
 	}).on('complete', function (info) {
 	  // handle complete
 		console.log(info);
+        navigator.notification.alert(
+            'Syncronisation complete!',  // message
+            function(){return;},         // callback
+            'PouchDB message',            // title
+            'OK'                  // buttonName
+        );
 	}).on('error', function (err) {
 	  // handle error
 		console.log(err);
 		//cancel replication (test if it works?!?)
+        navigator.notification.alert(
+            'Syncronisation canceled!',  // message
+            function(){return;},         // callback
+            'PouchDB message',            // title
+            'OK'                  // buttonName
+        );    
 		sync.cancel();
 	});	
-	
-}
 
-
-function alertDismissed(){
-    return;
 }
 
