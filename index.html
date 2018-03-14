@@ -1,0 +1,204 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Meetup #13</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+			
+				<section data-markdown 
+				    data-separator="---"  data-separator-vertical="^\r?\n--\r?\n$"	data-separator-notes="^Note:" >
+					<script type="text/template">
+						<small>CouchDB & PouchDB - Meetup #13</br>Hamburg 16 Mar 2018</small>
+						
+						## Hybrid mobile applications with PouchDB and Webix
+						
+						<small>Dragos STOICA</small>
+						
+						---
+						
+						# Summary
+											
+						- Who are we?
+						- &#10024; **BONUS from Webix!** &#10024;
+						- Show the code, man!
+						- Q & A
+						
+						---
+						
+						## Who are we?
+						
+						- Carmen Pintea (5)
+						- Teodorescu Constantin (7)
+						- Viorel Mitache (8)
+						- Alexandru Mocioi (6)
+						- Radu Radoveneanu (6)
+						- Merlin Tamla (5)
+						- Dragos Stoica (6)
+						
+						<small>*in paranthesis years of Couching</small>
+						
+						--
+						
+						## Who are we?
+						
+						Where you can find me:
+						
+						- Github: [https://github.com/dragos-constantin-stoica](https://github.com/dragos-constantin-stoica)
+						- LinkedIn: [https://www.linkedin.com/in/dragos-constantin-stoica/](https://www.linkedin.com/in/dragos-constantin-stoica/)
+						- Gitbook: [https://www.gitbook.com/@dragos-constantin-stoica](https://www.gitbook.com/@dragos-constantin-stoica)
+						
+						--
+						
+						## Who are we?
+						
+						What we did:
+						
+						- ACDC: [Another application Connector for couchapp Developers with CouchDB](https://github.com/iqcouch/acdc) 
+						- Designeditor: [Couchdb _design documents editor](https://github.com/iqcouch/designeditor)
+						- iFact: [Invoicing for freelancers](https://github.com/iqcouch/ifact)
+						- µKanban: [Basic Kanban - neat tool written in Webix](https://github.com/iqcouch/microKanban)
+						- signMe: [Scanned e-signature on PDF documents](https://github.com/iqcouch/signME)
+						- goCouch: [CouchDB in Go for mobile devices.](https://github.com/iqcouch/gocouch)
+						- Book: [CouchDB - just relax, man!](https://www.gitbook.com/book/dragos-constantin-stoica/couchdb-just-relax-man/details) on Gitbook
+						
+						
+						--
+						
+						## Who are we?
+						
+						Where we used CouchdDB, PouchDB, Cloudant, CouchBase:
+						
+						- Romanian Government and Public Institutions since 2012
+						- L'Oreal Romania since 2014, Carrefour Romania 2015, Qualitance since 2017, Novaintermed since 2012
+						- Mobile application development for undergraduate engineers 2013-2015
+												
+						--
+						
+						## Who we are?
+						
+						Our services and expertise:
+						
+						- use CouchDB and the entire ecosystem for SaaS solutions
+						- embedded, off-line, mobile solutions
+						- IoT, IIoT, digital localized marketing, block-chain, digital signaure and digital ID full solutions
+												
+						---
+						
+						## &#10024; **BONUS from Webix!** &#10024;
+						
+						**20%** discount until 15 July 2018 for any Webix licence with the following code:
+						
+						# `20OFFCDBMU13`
+						
+						--
+						
+						## &#10024; **BONUS from Webix!** &#10024;
+						
+						Webix: [https://webix.com/](https://webix.com/) is a kickass Javascript UI framework that will change your life!
+						
+						Has both web and mobile versions, loads of UI widgets and data processors, data connectors, onf-line support.
+						
+						Nice collaboration and support! Thank you!
+						
+						---
+						
+						## Show the code, man!
+						
+						You can access the code on Github:
+						[https://github.com/dragos-constantin-stoica/CouchDB-PouchDB-Meetup-13](https://github.com/dragos-constantin-stoica/CouchDB-PouchDB-Meetup-13)
+						
+						it was developed with [Monaca](https://monaca.io/)
+						
+						<small>The code was developed using Webix GPL version and PouchDB v6.4.2.</small>
+						
+						---
+						
+						## Q & A
+						
+						<small>Just relax!</br>When do we start drinking beer?</small>
+						
+						---
+						
+						# Thank you!
+						
+						<small>This presentation uses reveal.js.</small>
+
+					</script>
+				</section>
+				
+				
+
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				// Display presentation control arrows
+				controls: true,
+				// Determines where controls appear, "edges" or "bottom-right"
+				controlsLayout: 'bottom-right',
+				// Visibility rule for backwards navigation arrows; "faded", "hidden"
+				// or "visible"
+				controlsBackArrows: 'faded',
+				// Display a presentation progress bar
+				progress: true,
+				// Display the page number of the current slide
+				slideNumber: true,
+				// Enable keyboard shortcuts for navigation
+				keyboard: true,
+				// Enable the slide overview mode
+				overview: true,
+				// Vertical centering of slides
+				center: true,
+				// Enables touch navigation on devices with touch input
+				touch: true,				
+				// Turns fragments on and off globally
+				fragments: true,
+				// Flags if the presentation is running in an embedded mode,
+				// i.e. contained within a limited portion of the screen
+				embedded: false,
+				// Flags if we should show a help overlay when the questionmark
+				// key is pressed
+				help: true,
+				// The display mode that will be used to show slides
+				display: 'block',				
+				dependencies: [
+					// Interpret Markdown in <section> elements
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+
+					// Syntax highlight for <code> elements
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+		</script>
+	</body>
+</html>
